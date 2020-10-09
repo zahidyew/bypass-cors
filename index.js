@@ -1,5 +1,5 @@
 const express = require('express');
-const request = require('request');
+const fetch = require('node-fetch');
 
 const app = express();
 
@@ -12,23 +12,15 @@ app.use((req, res, next) => {
   if (whitelisted.indexOf(origin) > -1) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
-
   next();
 });
 
-///bypass?url=https://joke-api-strict-cors.appspot.com/jokes/random
-///bypass?url=PUT-API-URL-HERE
+// .../bypass?url=URL-HERE
 app.get('/bypass', (req, res) => {
-  request(
-    { url: req.query.url },
-    (error, response, body) => {
-      if (error || response.statusCode !== 200) {
-        return res.status(500).json({ type: 'error', message: err.message });
-      }
-
-      res.json(JSON.parse(body));
-    }
-  )
+  fetch(req.query.url, {method: 'GET'})
+    .then(response => response.text())
+    .then(body => res.json(JSON.parse(body)))
+    .catch(error => console.log(error))
 });
 
 const PORT = process.env.PORT || 3000;
